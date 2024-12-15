@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Pages</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            background: #6a0dad;
+            border-radius: 8px;
+            color: white;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        }
+
+        button, input[type="submit"] {
+            background-color: #5c0cae;
+            color: white;
+            padding: 12px 20px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover, input[type="submit"]:hover {
+            background-color: #4b0990;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .links a {
+            color: #c7a3e6;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            input[type="text"], input[type="email"], input[type="password"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Login Page -->
+<div class="container" id="loginForm">
+    <h1>Login</h1>
+    <form method="POST" action="http://localhost:3000/signIn" id="login-form">
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <div class="links">
+        <a href="#forgot-password">Forgot Password?</a><br>
+        <a href="#register">Don't have an account? Register</a>
+    </div>
+</div>
+
+<!-- Registration Page -->
+<div class="container" id="register" style="display: none;">
+    <h1>Register</h1>
+    <form action="http://localhost:3000/signUp" method="post">
+        <input type="text" name="First_Name" placeholder="First Name" required>
+        <input type="text" name="Last_Name" placeholder="Last Name" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="password" name="cpassword" placeholder="Confirm Password" required>
+        <input type="submit" value="Register">
+    </form>
+    <div class="links">
+        <a href="#loginForm">Already have an account? Login</a>
+    </div>
+</div>
+
+<!-- Forgot Password Page -->
+<div class="container" id="forgot-password" style="display: none;">
+    <h1>Forgot Password</h1>
+    <form id="forgot-password-form">
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <input type="submit" value="Send OTP">
+    </form>
+    <div class="links">
+        <a href="#loginForm">Back to Login</a>
+    </div>
+</div>
+
+<!-- OTP Page -->
+<div class="container" id="OTP-pass" style="display: none;">
+    <h1>Enter OTP</h1>
+    <form id="OTP-form">
+        <input type="text" name="OTP" placeholder="Enter your OTP" required>
+        <input type="submit" value="Verify OTP">
+    </form>
+    <div class="links">
+        <a href="#forgot-password">Back to Forgot Password</a>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // Navigation between forms (using jQuery)
+    $('.links a').on('click', function(e) {
+        e.preventDefault(); // Prevent default anchor behavior
+        $('.container').hide(); // Hide all containers
+        const target = $($(this).attr('href')); // Select target form using href attribute
+        target.show(); // Show the target form
+    });
+
+    // Handle the form submission for Forgot Password (using jQuery)
+    $('#forgot-password-form').on('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission behavior
+
+        // Hide the Forgot Password page
+        $('#forgot-password').hide();
+
+        // Show the OTP Pass page
+        $('#OTP-pass').show();
+    });
+
+    // Handle OTP form submission (using jQuery)
+    $('#OTP-form').on('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission behavior
+
+        // Process OTP verification (just an example action)
+        alert('OTP Verified!'); // Placeholder action, replace with actual logic
+    });
+
+    // Handle the Login form submission (using jQuery)
+    $('#login-form').on('submit', function(e) {
+        e.preventDefault(); 
+
+        const email = $('input[name="email"]').val();
+        const password = $('input[name="password"]').val();
+
+        $.ajax({
+    url: 'http://localhost:3000/signIn',
+    method: 'POST',
+    data: {
+        email: email,
+        password: password
+    },
+    success: function(response) {
+        // Assuming the response contains the token
+        const token = response.token;
+
+        // Store the token in local storage
+        localStorage.setItem('authToken', token);
+
+        // Redirect the user after successful login
+        window.location.href = 'index.html';
+    },
+    error: function(xhr, status, error) {
+        alert("Login failed: " + error);
+        console.error(error);
+    }
+});
+
+    });
+</script>
+
+</body>
+</html>

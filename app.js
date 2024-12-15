@@ -1,15 +1,14 @@
 const express= require('express');
-const connection = require('./database/conn');
+const connection = require('./backend/database/conn');
+const loginrouter = require('./backend/routes/userroute');
+const cors = require('cors');
+
 const app= express();
+app.use(express.json());
+app.use(express.static("frontend"));
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
-const dotenv= require('dotenv');
+app.use(loginrouter);
 
-dotenv.config();
-app.post('/', async(req, resp)=>
-{
-    console.log(process.env.DB_PASSWORD);
-    const db= await connection();
-    console.log(await db);
-    resp.send('found');
-})
-app.listen(1111);
+app.listen(3000);
