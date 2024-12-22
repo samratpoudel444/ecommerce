@@ -16,10 +16,10 @@
     </div>
     <nav>
       <ul>
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Shop</a></li>
+        <li><a href="index.html">Home</a></li>
         <li><a href="loginpage.html">Login</a></li>
-        <li><a href="#">Cart</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="payment.html">payment</a></li>
       </ul>
     </nav>
 
@@ -33,8 +33,8 @@
   <section class="categories">
     <h3>Categories</h3>
     <ul>
-      <li><a href="#">Men's Shoes</a></li>
-      <li><a href="#">Ladies Shoes</a></li>
+      <li><a href="shoes.html">Men's Shoes</a></li>
+      <li><a class="nav-link" href="#">Ladies Shoes</a></li>
       <li><a href="#">Sports Shoes</a></li>
       <li><a href="#">Kids Shoes</a></li>
 
@@ -51,7 +51,7 @@
         <h3>Product 1</h3>
         <p class="price">$19.99</p>
         <p class="description">Description of Product 1. Lorem ipsum dolor sit amet.</p>
-        <button>Add to Cart</button>
+        <xbutton>Add to Cart</xbutton>
       </div>
 
       <!-- Product 2 -->
@@ -81,14 +81,14 @@
         <button>Add to Cart</button>
       </div>
 
-    
       <div class="product-card">
         <img src="https://via.placeholder.com/200" alt="Product 4">
-        <h3>Product 5</h3>
+        <h3>Product 4</h3>
         <p class="price">$49.99</p>
         <p class="description">Description of Product 4. Lorem ipsum dolor sit amet.</p>
         <button>Add to Cart</button>
       </div>
+
     </div>
   </section>
 
@@ -99,4 +99,38 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   
 </body>
+<script>
+  // Initialize cart from local storage or as an empty array
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  // Function to add product to the cart
+  function addToCart(productId, productName, productPrice) {
+    // Check if the product is already in the cart
+    const existingProduct = cart.find(item => item.id === productId);
+    
+    if (existingProduct) {
+      existingProduct.quantity += 1; // Increment quantity if already in the cart
+    } else {
+      cart.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
+    }
+
+    // Save the updated cart back to local storage
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    alert(`${productName} has been added to your cart!`);
+  }
+
+  // Add event listeners to the "Add to Cart" buttons
+  document.querySelectorAll(".add-to-cart").forEach(button => {
+    button.addEventListener("click", () => {
+      const productCard = button.closest(".product-card");
+      const productId = button.getAttribute("data-id");
+      const productName = productCard.querySelector("h3").textContent;
+      const productPrice = productCard.querySelector(".price").textContent.replace("$", "");
+
+      addToCart(productId, productName, parseFloat(productPrice));
+    });
+  });
+</script>
+
 </html>

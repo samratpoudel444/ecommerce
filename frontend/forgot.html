@@ -1,0 +1,68 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password</title>
+  <style>
+    /* Add your forgot password page styles here */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 400px;
+      margin: 50px auto;
+      background: #6a0dad;
+      padding: 30px;
+      color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    input {
+      width: 90%;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    button {
+      width: 99%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: yellow;
+    }
+
+    a{
+        color: aliceblue;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Forgot Password</h1>
+    <form id="forgot-password-form">
+      <input type="email" name="email" placeholder="Enter your email" required>
+      <button type="submit">Send OTP</button>
+    </form>
+    <p>
+      <a href="loginpage.html">Back to Login</a>
+    </p>
+  </div>
+
+  <script>
+    document.getElementById('forgot-password-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = e.target.email.value;
+
+      // Mock OTP request logic
+      alert(`OTP sent to ${email}`);
+      window.location.href = 'otp.html';
+    });
+  </script>
+</body>
+</html>

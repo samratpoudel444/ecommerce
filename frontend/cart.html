@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>ShopNow - Purple Theme</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header>
+    <div class="logo">
+      <h1>Jhutta Ho</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="loginpage.html">Login</a></li>
+        <li><a href="#">Cart</a></li>
+        <li><a href="#">payment</a></li>
+      </ul>
+    </nav>
+
+    <!-- Search Box -->
+    <div class="search-box">
+      <input type="text" id="search" placeholder="Search products...">
+    </div>
+  </header>
+
+
+  <div class="cart-container">
+    <h2>Your Cart</h2>
+    <ul id="cart-items"></ul>
+    <p id="cart-total">Total: $0.00</p>
+  </div>
+
+  
+  <script>
+    // Fetch the cart from local storage
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  
+    const cartItemsContainer = document.getElementById("cart-items");
+    const cartTotalContainer = document.getElementById("cart-total");
+  
+    // Populate the cart items
+    function renderCart() {
+      cartItemsContainer.innerHTML = ""; // Clear current list
+      let total = 0;
+  
+      cart.forEach(item => {
+        total += item.price * item.quantity;
+  
+        const li = document.createElement("li");
+        li.textContent = `${item.name} - $${item.price} x ${item.quantity}`;
+        cartItemsContainer.appendChild(li);
+      });
+  
+      cartTotalContainer.textContent = `Total: $${total.toFixed(2)}`;
+    }
+  
+    renderCart();
+  </script>
+  
+  
+
+  <footer>
+    <p>&copy; 2024 Jhutta Ho - All Rights Reserved</p>
+  </footer>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+</body>
+</html>

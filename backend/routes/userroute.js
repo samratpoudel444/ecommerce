@@ -4,5 +4,5 @@ const router= express.Router();
 
 router.route('/signUp').post(controllers.signUpUsers);
 router.route('/signIn').post(controllers.signInUsers);
-
+router.route('/otp').get(controllers.OTP)
 module.exports= router;
