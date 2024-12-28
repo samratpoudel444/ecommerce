@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>ShopNow - Dynamic Product Display</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header>
+    <div class="logo">
+      <h1>Jhutta Ho</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="loginpage.html">Login</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="payment.html">Payment</a></li>
+      </ul>
+    </nav>
+
+    <!-- Search Box -->
+    <div class="search-box">
+      <input type="text" id="search" placeholder="Search products...">
+    </div>
+  </header>
+
+  <!-- Categories Section -->
+  <section class="categories">
+    <h3>Categories</h3>
+    <ul id="category-list">
+      <!-- Categories will be dynamically populated -->
+    </ul>
+  </section>
+
+  <!-- Product Listing Section -->
+  <section class="product-list">
+    <h2 id="category-title">Products</h2>
+    <div class="product-container" id="product-container">
+      <!-- Products will be dynamically populated -->
+    </div>
+  </section>
+
+
+
+<script>
+const categories = [
+  { name: "Men's Shoes", id: "mens-shoes" },
+  { name: "Ladies' Shoes", id: "ladies-shoes" },
+  { name: "Sports Shoes", id: "sports-shoes" },
+  { name: "Kids' Shoes", id: "kids-shoes" },
+];
+
+const products = {
+  "mens-shoes": [
+    { name: "Product 1", price: "$19.99", description: "Stylish Men's Shoes", image: "https://via.placeholder.com/200" },
+    { name: "Product 2", price: "$29.99", description: "Comfortable Men's Shoes", image: "https://via.placeholder.com/200" },
+  ],
+  "ladies-shoes": [
+    { name: "Product 1", price: "$24.99", description: "Elegant Ladies' Shoes", image: "https://via.placeholder.com/200" },
+    { name: "Product 2", price: "$34.99", description: "Trendy Ladies' Shoes", image: "https://via.placeholder.com/200" },
+  ],
+  "sports-shoes": [
+    { name: "Product 1", price: "$49.99", description: "Durable Sports Shoes", image: "https://via.placeholder.com/200" },
+    { name: "Product 2", price: "$59.99", description: "High-Performance Sports Shoes", image: "https://via.placeholder.com/200" },
+  ],
+  "kids-shoes": [
+    { name: "Product 1", price: "$14.99", description: "Cute Kids' Shoes", image: "https://via.placeholder.com/200" },
+    { name: "Product 2", price: "$19.99", description: "Comfortable Kids' Shoes", image: "https://via.placeholder.com/200" },
+  ],
+};
+
+// Retrieve the cart from localStorage or initialize it as an empty array
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+// Populate categories
+const categoryList = document.getElementById("category-list");
+categories.forEach((category) => {
+  const li = document.createElement("li");
+  li.innerHTML = `<a href="#" data-category="${category.id}">${category.name}</a>`;
+  categoryList.appendChild(li);
+});
+
+// Display products for a selected category
+const productContainer = document.getElementById("product-container");
+const categoryTitle = document.getElementById("category-title");
+
+function displayProducts(categoryId) {
+  // Clear existing products
+  productContainer.innerHTML = "";
+
+  // Update category title
+  const selectedCategory = categories.find((cat) => cat.id === categoryId);
+  categoryTitle.textContent = selectedCategory ? selectedCategory.name : "Products";
+
+  // Add products
+  products[categoryId].forEach((product) => {
+    const productCard = document.createElement("div");
+    productCard.className = "product-card";
+    productCard.innerHTML = `
+      <img src="${product.image}" alt="${product.name}">
+      <h3>${product.name}</h3>
+      <p class="price">${product.price}</p>
+      <p class="description">${product.description}</p>
+      <button class="add-to-cart" data-product='${JSON.stringify(product)}'>Add to Cart</button>
+    `;
+    productContainer.appendChild(productCard);
+  });
+
+  // Add event listeners to "Add to Cart" buttons
+  const addToCartButtons = productContainer.querySelectorAll(".add-to-cart");
+  addToCartButtons.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      const product = JSON.parse(e.target.dataset.product);
+      addToCart(product);
+    });
+  });
+}
+
+// Function to add product to cart
+function addToCart(product) {
+  cart.push(product); // Add product to the cart array
+  localStorage.setItem("cart", JSON.stringify(cart)); // Save the updated cart to localStorage
+
+  // Show a message or update cart icon (optional)
+  alert(`${product.name} has been added to your cart.`);
+}
+
+// Event listener for category clicks
+categoryList.addEventListener("click", (e) => {
+  if (e.target.tagName === "A") {
+    const categoryId = e.target.dataset.category;
+    displayProducts(categoryId);
+  }
+});
+
+// Default to the first category
+displayProducts(categories[0].id);
+</script>
+</body>
+</html>

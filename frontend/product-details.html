@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Product Details</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .product-detail-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px;
+      }
+
+      .product-image {
+        width: 40%;
+      }
+
+      .product-info {
+        width: 55%;
+      }
+
+      .product-info h3 {
+        margin-bottom: 10px;
+      }
+
+      .buy-now-btn {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <h1>Jhutta Ho</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="loginpage.html">Login</a></li>
+          <li><a href="cart.html">Cart</a></li>
+          <li><a href="payment.html">Payment</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <section class="product-detail-container" id="product-detail-container">
+      <!-- Product details will be inserted here -->
+    </section>
+
+    <footer>
+      <p>&copy; 2024 Jhutta Ho - All Rights Reserved</p>
+    </footer>
+
+    <script>
+      const products = [
+        {
+          id: 1,
+          name: "Men's Running Shoes",
+          price: 49.99,
+          description: "Comfortable running shoes for men.",
+          image: "https://via.placeholder.com/400",
+        },
+        {
+          id: 2,
+          name: "Ladies Sandals",
+          price: 39.99,
+          description: "Stylish sandals for women.",
+          image: "https://via.placeholder.com/400",
+        },
+        {
+          id: 3,
+          name: "Kids Sneakers",
+          price: 29.99,
+          description: "Durable sneakers for kids.",
+          image: "https://via.placeholder.com/400",
+        },
+        {
+          id: 4,
+          name: "Sports Training Shoes",
+          price: 59.99,
+          description: "Perfect shoes for sports training.",
+          image: "https://via.placeholder.com/400",
+        },
+      ];
+
+      // Get the product ID from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const productId = parseInt(urlParams.get('id'));
+
+      // Find the product based on the ID
+      const product = products.find((p) => p.id === productId);
+
+      if (product) {
+        const productDetailContainer = document.getElementById("product-detail-container");
+        productDetailContainer.innerHTML = `
+          <div class="product-image">
+            <img src="${product.image}" alt="${product.name}" />
+          </div>
+          <div class="product-info">
+            <h3>${product.name}</h3>
+            <p>${product.description}</p>
+            <p><strong>Price: $${product.price.toFixed(2)}</strong></p>
+            <button class="buy-now-btn" onclick="buyNow(${product.id})">Buy Now</button>
+          </div>
+        `;
+      }
+
+      function buyNow(productId) {
+        alert(`You chose to buy the product with ID: ${productId}.`);
+      }
+    </script>
+  </body>
+</html>

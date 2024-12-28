@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>ShopNow - Dynamic Cart</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Header Section -->
+    <header>
+      <div class="logo">
+        <h1>Jhutta Ho</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="loginpage.html">Login</a></li>
+          <li><a href="cart.html">Cart</a></li>
+          <li><a href="payment.html">Payment</a></li>
+        </ul>
+      </nav>
+
+      <!-- Search Box -->
+      <div class="search-box">
+        <input type="text" id="search" placeholder="Search products..." />
+      </div>
+    </header>
+
+    <!-- Categories Section -->
+    <section class="categories">
+      <h3>Categories</h3>
+      <ul id="category-list">
+        <!-- Categories will be dynamically inserted here -->
+      </ul>
+    </section>
+
+    <!-- Product Listing Section -->
+    <section class="product-list">
+      <h2>Featured Products</h2>
+      <div class="product-container" id="product-container">
+        <!-- Products will be dynamically inserted here -->
+      </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+      <p>&copy; 2024 Jhutta Ho - All Rights Reserved</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      // Example product data
+      const products = [
+        {
+          id: 1,
+          name: "Men's Running Shoes",
+          price: 49.99,
+          description: "Comfortable running shoes for men.",
+          category: "Men's Shoes",
+          image: "https://via.placeholder.com/200",
+        },
+        {
+          id: 2,
+          name: "Ladies Sandals",
+          price: 39.99,
+          description: "Stylish sandals for women.",
+          category: "Ladies Shoes",
+          image: "https://via.placeholder.com/200",
+        },
+        {
+          id: 3,
+          name: "Kids Sneakers",
+          price: 29.99,
+          description: "Durable sneakers for kids.",
+          category: "Kids Shoes",
+          image: "https://via.placeholder.com/200",
+        },
+        {
+          id: 4,
+          name: "Sports Training Shoes",
+          price: 59.99,
+          description: "Perfect shoes for sports training.",
+          category: "Sports Shoes",
+          image: "https://via.placeholder.com/200",
+        },
+      ];
+
+      // Categories list
+      const categories = [
+        "Men's Shoes",
+        "Ladies Shoes",
+        "Kids Shoes",
+        "Sports Shoes",
+      ];
+
+      // Check if user is logged in (JWT exists in localStorage)
+      function isUserAuthenticated() {
+        const jwt = localStorage.getItem("authToken");
+        return jwt !== null; // Returns true if JWT exists, false otherwise
+      }
+
+      // Initialize cart from local storage or as an empty array
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+      // Function to add product to the cart
+      function addToCart(productId, productName, productPrice) {
+        if (!isUserAuthenticated()) {
+          alert("You must be logged in to add items to the cart!");
+          return;
+        }
+
+        // Check if the product is already in the cart
+        const existingProduct = cart.find((item) => item.id === productId);
+
+        if (existingProduct) {
+          existingProduct.quantity += 1; // Increment quantity if already in the cart
+        } else {
+          cart.push({
+            id: productId,
+            name: productName,
+            price: productPrice,
+            quantity: 1,
+          });
+        }
+
+        // Save the updated cart back to local storage
+        localStorage.setItem("cart", JSON.stringify(cart));
+        alert(`${productName} has been added to your cart!`);
+      }
+
+      // Function to render products dynamically
+      function renderProducts(selectedCategory = null) {
+        const productContainer = document.getElementById("product-container");
+        productContainer.innerHTML = ""; // Clear existing products
+
+        const filteredProducts = selectedCategory
+          ? products.filter((product) => product.category === selectedCategory)
+          : products;
+
+        filteredProducts.forEach((product) => {
+          const productCard = document.createElement("div");
+          productCard.className = "product-card";
+          productCard.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <h3>${product.name}</h3>
+            <p class="price">$${product.price.toFixed(2)}</p>
+            <p class="description">${product.description}</p>
+            <button class="add-to-cart" data-id="${product.id}">Add to Cart</button><br><br>
+           <button><a href="product-details.html?id=${product.id}" class="view-details">View Details</a></button>
+          `;
+          productContainer.appendChild(productCard);
+        });
+
+        // Attach event listeners to "Add to Cart" buttons
+        document.querySelectorAll(".add-to-cart").forEach((button) => {
+          button.addEventListener("click", () => {
+            const productCard = button.closest(".product-card");
+            const productId = button.getAttribute("data-id");
+            const productName = productCard.querySelector("h3").textContent;
+            const productPrice = productCard
+              .querySelector(".price")
+              .textContent.replace("$", "");
+
+            addToCart(productId, productName, parseFloat(productPrice));
+          });
+        });
+      }
+
+      // Function to render category links
+      function renderCategories() {
+        const categoryList = document.getElementById("category-list");
+        categoryList.innerHTML = ""; // Clear existing categories
+
+        categories.forEach((category) => {
+          const li = document.createElement("li");
+          li.innerHTML = `<a href="#" data-category="${category}">${category}</a>`;
+          categoryList.appendChild(li);
+        });
+
+        // Add event listeners for category links
+        document.querySelectorAll(".categories a").forEach((link) => {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const category = e.target.getAttribute("data-category");
+            renderProducts(category); // Filter products based on selected category
+          });
+        });
+      }
+
+      // Initial render of categories and products
+      renderCategories();
+      renderProducts();
+
+      // Function to get cart data if the user is logged in
+      function displayCartData() {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        console.log("Cart items:", cart);
+      }
+
+      // Call to display cart if user is authenticated (has JWT)
+      if (isUserAuthenticated()) {
+        displayCartData();
+      }
+    </script>
+  </body>
+</html>

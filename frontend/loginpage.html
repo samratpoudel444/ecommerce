@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 400px;
+      margin: 50px auto;
+      background: #6a0dad;
+      padding: 30px;
+      color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    input {
+      width: 90%;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    button {
+      width: 99%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: yellow;
+    }
+    .welcome-container {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+    a {
+      color: aliceblue;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Welcome container that shows if the user is already logged in -->
+  <div class="welcome-container" id="welcome-container">
+    <h1>Welcome Back!</h1>
+    <p>You are already logged in.</p>
+    <button id="logout-btn">Logout</button>
+  </div>
+
+  <!-- Login form container -->
+  <div class="container" id="login-container">
+    <h1>Login</h1>
+    <form id="login-form">
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+    <p>
+      <a href="forgot.html">Forgot Password?</a> |
+      <a href="registration.html">Register</a>
+    </p>
+  </div>
+
+  <script>
+    // Check if the user is already logged in by looking for email in localStorage
+    const emailInLocalStorage = localStorage.getItem('userEmail');
+    const welcomeContainer = document.getElementById('welcome-container');
+    const loginContainer = document.getElementById('login-container');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (emailInLocalStorage) {
+      // If email is in localStorage, show the welcome container and hide the login form
+      welcomeContainer.style.display = 'block';
+      loginContainer.style.display = 'none';
+    } else {
+      // If not logged in, show the login form
+      welcomeContainer.style.display = 'none';
+      loginContainer.style.display = 'block';
+    }
+
+    // Handle login form submission
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+
+      try {
+        const response = await fetch('http://localhost:3000/signIn', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('userEmail', email); // Store email in localStorage
+          localStorage.setItem('authToken', data.token);
+          alert('Login successful!');
+          window.location.href = 'index.html'; // Redirect to main page
+        } else {
+          alert(`Error: ${data.message}`);
+        }
+      } catch (error) {
+        console.error(error);
+        alert('An error occurred.');
+      }
+    });
+
+    // Handle logout button click
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('userEmail'); // Remove email from localStorage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('cart'); // Remove token from localStorage
+      window.location.href = 'loginpage.html'; // Redirect to login page
+    });
+  </script>
+
+</body>
+</html>
