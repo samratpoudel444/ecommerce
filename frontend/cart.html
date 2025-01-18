@@ -5,82 +5,182 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shopping Cart</title>
   <style>
-    .cart-item {
-      border: 1px solid #ddd;
-      margin: 10px;
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
       padding: 10px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #f4f4f4;
     }
     .cart-item button {
       background-color: red;
       color: white;
       border: none;
-      padding: 5px;
+      padding: 5px 10px;
       cursor: pointer;
+    }
+    .cart-item button:hover {
+      opacity: 0.8;
+    }
+    .cart-actions {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: flex-start;
+      gap: 10px;
+    }
+    button.clear-cart, button.submit-cart {
+      background-color: #f44336;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+    }
+    button.submit-cart {
+      background-color: #4CAF50;
+    }
+    .total-row {
+      font-weight: bold;
+      text-align: right;
+    }
+    .total-row td {
+      text-align: right;
     }
   </style>
 </head>
 <body>
 
   <h1>Your Cart</h1>
-  <div id="cart-container">
-    <!-- Cart items will be displayed here -->
+
+  <div id="login-message" class="not-logged-in"></div>
+
+  <!-- Cart actions above the table -->
+  <div id="cart-actions" class="cart-actions" style="display: none;">
+    <button class="clear-cart" onclick="clearCart()">Clear Cart</button>
+    <button class="submit-cart" onclick="submitCart()">Submit Cart</button>
   </div>
 
-  <button onclick="clearCart()">Clear Cart</button>
+  <table id="cart-table" style="display: none;">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Total</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="cart-container">
+      <!-- Cart items will be displayed here -->
+    </tbody>
+    <tfoot>
+      <tr class="total-row">
+        <td colspan="3"></td>
+        <td>Total Price: $<span id="total-price">0</span></td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
 
-  <script defer src="cart.js"></script>
   <script>
-    // cart.js
+    // Check if the user is logged in
+    const isLoggedIn = localStorage.getItem("authToken");
 
-// Retrieve the cart from localStorage
-const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const loginMessageElement = document.getElementById("login-message");
+    const cartTable = document.getElementById("cart-table");
+    const cartActions = document.getElementById("cart-actions");
+    const totalPriceElement = document.getElementById("total-price");
+    const cartContainer = document.getElementById("cart-container");
 
-// Display cart items
-const cartContainer = document.getElementById("cart-container");
+    if (!isLoggedIn) {
+      loginMessageElement.textContent = "You are not logged in.";
+      cartTable.style.display = "none";
+      cartActions.style.display = "none";
+    } else {
+      loginMessageElement.textContent = "";
+      cartTable.style.display = "block";
+      cartActions.style.display = "flex";
 
-function displayCart() {
-  // Clear the cart container before displaying items
-  cartContainer.innerHTML = '';
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  if (cart.length === 0) {
-    cartContainer.innerHTML = "<p>Your cart is empty.</p>";
-    return;
-  }
+      function displayCart() {
+        cartContainer.innerHTML = '';
+        if (cart.length === 0) {
+          cartContainer.innerHTML = "<tr><td colspan='5'>Your cart is empty.</td></tr>";
+          totalPriceElement.textContent = "0";
+          return;
+        }
 
-  cart.forEach((product, index) => {
-    const productCard = document.createElement("div");
-    productCard.className = "cart-item";
-    productCard.innerHTML = `
-      <h3>${product.name}</h3>
-      <p>${product.price}</p>
-      <p>${product.description}</p>
-      <button onclick="removeFromCart(${index})">Remove</button>
-    `;
-    cartContainer.appendChild(productCard);
-  });
-}
+        let total = 0;
+        cart.forEach((product, index) => {
+          const productTotal = product.price * product.quantity;
+          total += productTotal;
 
-// Function to remove product from cart
-function removeFromCart(index) {
-  // Remove the product from the cart array
-  cart.splice(index, 1);
-  // Update localStorage with the modified cart
-  localStorage.setItem("cart", JSON.stringify(cart));
-  // Re-render the cart
-  displayCart();
-}
+          const productRow = document.createElement("tr");
+          productRow.innerHTML = `
+            <td>${product.name}</td>
+            <td>$${product.price.toFixed(2)}</td>
+            <td>
+              <button onclick="decreaseQuantity(${index})">-</button>
+              ${product.quantity}
+              <button onclick="increaseQuantity(${index})">+</button>
+            </td>
+            <td>$${productTotal.toFixed(2)}</td>
+            <td><button onclick="removeFromCart(${index})">Remove</button></td>
+          `;
+          cartContainer.appendChild(productRow);
+        });
 
-// Function to clear the entire cart
-function clearCart() {
-  // Remove the cart from localStorage
-  localStorage.removeItem("cart");
-  // Re-render the cart (empty)
-  displayCart();
-}
+        totalPriceElement.textContent = total.toFixed(2);
+      }
 
-// Initialize the cart display
-displayCart();
+      function increaseQuantity(index) {
+        cart[index].quantity += 1;
+        updateCart();
+      }
 
+      function decreaseQuantity(index) {
+        if (cart[index].quantity > 1) {
+          cart[index].quantity -= 1;
+          updateCart();
+        }
+      }
+
+      function updateCart() {
+        localStorage.setItem("cart", JSON.stringify(cart));
+        displayCart();
+      }
+
+      function removeFromCart(index) {
+        cart.splice(index, 1);
+        updateCart();
+      }
+
+      function clearCart() {
+        cart = [];
+        localStorage.removeItem("cart");
+        displayCart();
+      }
+
+      function submitCart() {
+        if (cart.length === 0) {
+          alert("Your cart is empty! Add items to the cart before submitting.");
+          return;
+        }
+        alert("Proceeding to checkout!");
+      }
+
+      displayCart();
+    }
   </script>
 </body>
 </html>

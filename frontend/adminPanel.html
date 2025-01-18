@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Admin Panel - Product Management</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      background-color:#6a1b9a;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    /* Form Section */
+    .form-section {
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-section h2 {
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #6a1b9a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #6a1b9a;
+    }
+
+    /* Product List Section */
+    .product-list-section {
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-list-section h2 {
+      margin-top: 0;
+    }
+
+    .product-card {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      background-color: #f9f9f9;
+    }
+
+    .product-card img {
+      width: 80px;
+      height: 80px;
+      margin-right: 15px;
+      object-fit: cover;
+    }
+
+    .product-card h3 {
+      margin: 0;
+      flex: 1;
+    }
+
+    .product-card p {
+      margin: 0;
+      color: #555;
+    }
+
+    .product-card .price {
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    .delete-btn {
+      padding: 5px 10px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-left: 15px;
+    }
+
+    .delete-btn:hover {
+      background-color: darkred;
+    }
+
+    .update-btn {
+      padding: 5px 10px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-left: 15px;
+    }
+
+    .update-btn:hover {
+      background-color: darkred;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Admin Panel</h1>
+  </header>
+
+  <main>
+    <!-- Product Form -->
+      <!-- Welcome container that shows if the user is already logged in -->
+  <div class="welcome-container" id="welcome-container">
+  
+    <p>Wanna logout? Click Button below</p>
+    <button id="logout-btn">Logout</button>
+  </div>
+  <br><br>
+    <section class="form-section">
+      <h2>Add New Product</h2>
+      <form id="product-form">
+        <label for="product-name">Product Name:</label>
+        <input type="text" id="product-name" placeholder="Enter product name" required />
+
+        <label for="product-price">Price:</label>
+        <input type="number" id="product-price" placeholder="Enter price" required />
+
+        <label for="product-description">Description:</label>
+        <textarea id="product-description" placeholder="Enter description" required></textarea>
+
+        <label for="product-category">Category:</label>
+        <select id="product-category" required>
+          <option value="">Select a category</option>
+          <option value="Men's Shoes">Men's Shoes</option>
+          <option value="Ladies Shoes">Ladies Shoes</option>
+          <option value="Kids Shoes">Kids Shoes</option>
+          <option value="Sports Shoes">Sports Shoes</option>
+        </select>
+
+        <label for="product-image">Image URL:</label>
+        <input type="text" id="product-image" placeholder="Enter image URL" required />
+
+        <label for="product-featured">Featured:</label>
+        <select id="product-featured" required>
+          <option value="">Select an option</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+
+        <button type="submit" id="add-product-btn">Add Product</button>
+      </form>
+    </section>
+
+    <!-- Product List -->
+    <section class="product-list-section">
+      <h2>Product List</h2>
+      <div id="product-list">
+        <!-- Products will be dynamically added here -->
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 Admin Panel - All Rights Reserved</p>
+  </footer>
+
+  <script>
+    // API Endpoints
+    const ADD_PRODUCT_API = "http://localhost:3000/addProduct";
+    const FETCH_PRODUCT_API = "http://localhost:3000/showProduct";
+    const DELETE_PRODUCT_API = "http://localhost:3000/deleteProduct";
+
+    // Form submission handler
+    const logoutBtn = document.getElementById('logout-btn');
+    document.getElementById("product-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const product_Name = document.getElementById("product-name").value;
+      const Product_price = parseFloat(document.getElementById("product-price").value);
+      const Product_description = document.getElementById("product-description").value;
+      const product_category = document.getElementById("product-category").value;
+      const imageURL = document.getElementById("product-image").value;
+      const featured = document.getElementById("product-featured").value;
+
+      const newProduct = {
+        product_Name,
+        Product_price,
+        Product_description,
+        product_category,
+        imageURL,
+        featured,
+      };
+
+      try {
+        const response = await fetch(ADD_PRODUCT_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newProduct),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to add product. Status Code: ${response.status}`);
+        }
+
+        document.getElementById("product-form").reset();
+        fetchProductList(); // Update the product list after adding
+      } catch (error) {
+        console.error("Error adding product:", error);
+        alert("Failed to add product. Please check the console for details.");
+      }
+    });
+
+    async function fetchProductList() {
+      try {
+        const response = await fetch(FETCH_PRODUCT_API);
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch products. Status Code: ${response.status}`);
+        }
+
+        const products = await response.json();
+
+        const productList = document.getElementById("product-list");
+        productList.innerHTML = ""; // Clear the existing list
+
+        if (products.length === 0) {
+          productList.innerHTML = "<p>No products available. Add some!</p>";
+          return;
+        }
+
+        console.log("Fetched products:", products); // Log the response data
+
+        products.forEach((product) => {
+          // Log each product's data to verify its structure
+          console.log("Product data:", product);
+
+          if (!product.Product_price) {
+            console.warn("Missing Product_price for product:", product);
+          }
+
+          const productCard = document.createElement("div");
+          productCard.classList.add("product-card");
+
+          productCard.innerHTML = `
+            <div>
+              <h3>${product.product_Name}</h3>
+              <p class="price">$${product.product_price}</p>
+              <p>${product.product_description}</p>
+              <p><strong>Category:</strong> ${product.product_category}</p>
+              <p><strong>Featured:</strong> ${product.featured === "yes" ? "Yes" : "No"}</p>
+              <button class="delete-btn" onclick="deleteProduct('${product.Id}')">Delete</button>
+              <button class="update-btn" onclick="openUpdateForm('${product.Id}')">Update</button>
+
+            </div>
+          `;
+
+          productList.appendChild(productCard);
+        });
+      } catch (error) {
+        console.error("Error fetching product list:", error);
+        alert("Failed to load products.");
+      }
+    }
+
+    async function deleteProduct(productId) {
+      try {
+        const response = await fetch(`${DELETE_PRODUCT_API}?id=${productId}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to delete product. Status Code: ${response.status}`);
+        }
+
+        fetchProductList(); // Update the product list after deleting
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        alert("Failed to delete product.");
+      }
+    }
+
+    // Initial rendering of the product list
+    fetchProductList();
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('userEmail'); // Remove email from localStorage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('cart'); // Remove token from localStorage
+      window.location.href = 'loginpage.html'; // Redirect to login page
+    });
+
+    function openUpdateForm(productId) {
+  // Open the form section (if hidden) and pre-fill it with product data
+  fetch(`${FETCH_PRODUCT_API}/${productId}`)
+    .then((response) => response.json())
+    .then((product) => {
+      // Populate the form with product data
+      document.getElementById("product-name").value = product.product_Name;
+      document.getElementById("product-price").value = product.product_price;
+      document.getElementById("product-description").value = product.product_description;
+      document.getElementById("product-category").value = product.product_category;
+      document.getElementById("product-image").value = product.imageURL;
+      document.getElementById("product-featured").value = product.featured;
+
+      // Change the form's submit button to update
+      const submitButton = document.getElementById("add-product-btn");
+      submitButton.textContent = "Update Product";
+
+      // Update the form submission handler to update the product
+      document.getElementById("product-form").onsubmit = function (e) {
+        e.preventDefault();
+        
+        const updatedProduct = {
+          Id: productId, // Include the product ID in the update
+          product_Name: document.getElementById("product-name").value,
+          Product_price: parseFloat(document.getElementById("product-price").value),
+          Product_description: document.getElementById("product-description").value,
+          product_category: document.getElementById("product-category").value,
+          imageURL: document.getElementById("product-image").value,
+          featured: document.getElementById("product-featured").value,
+        };
+
+        fetch(`http://localhost:3000/updateProduct?id=${productId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedProduct),
+        })
+          .then((response) => {
+            if (response.ok) {
+              alert("Product updated successfully!");
+              fetchProductList(); // Refresh the product list after updating
+            } else {
+              throw new Error("Failed to update the product.");
+            }
+          })
+          .catch((error) => {
+            console.error("Error updating product:", error);
+            alert("Error updating product");
+          });
+      };
+    })
+    .catch((error) => {
+      console.error("Error fetching product details:", error);
+      alert("Error fetching product details.");
+    });
+}
+
+
+  </script>
+</body>
+</html>

@@ -19,6 +19,58 @@ body {
   text-decoration: underline; /* Optional: To add underline on hover */
 }
 
+/* Style for the search box container */
+.search-box {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+/* Style for the input box */
+#search {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+  font-size: 14px;
+  flex: 1;
+}
+
+/* Style for the search button */
+#search-btn {
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff; /* Primary color */
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 0 5px 5px 0;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover effect for the search button */
+#search-btn:hover {
+  background-color: #0056b3; /* Darker shade of the primary color */
+}
+
+/* Responsive behavior */
+@media (max-width: 600px) {
+  .search-box {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  #search {
+    border-radius: 5px;
+    margin-bottom: 5px;
+  }
+
+  #search-btn {
+    border-radius: 5px;
+    width: 100%;
+  }
+}
+
 /* Header Section */
 header {
   background-color: #6a1b9a; /* Purple background */

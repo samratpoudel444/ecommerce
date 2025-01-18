@@ -99,8 +99,14 @@
         if (response.ok) {
           localStorage.setItem('userEmail', email); // Store email in localStorage
           localStorage.setItem('authToken', data.token);
-          alert('Login successful!');
-          window.location.href = 'index.html'; // Redirect to main page
+          localStorage.setItem('isAdmin', data.isAdmin);
+         if(data.isAdmin= true)
+         {
+         window.location.href = 'adminPanel.html';
+         }
+         else{
+          window.location.href = 'index.html';
+          } // Redirect to main page
         } else {
           alert(`Error: ${data.message}`);
         }

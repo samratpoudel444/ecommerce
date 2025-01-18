@@ -69,8 +69,6 @@ async function signUpUsers(req, resp, next) {
     return resp.status(500).json({ error: error.message });
   }
 }
-
-
 async function signInUsers(req, resp, next) {
   const { email, password } = req.body;
   const db = await connection();
@@ -105,8 +103,15 @@ async function signInUsers(req, resp, next) {
       expiresIn: "1h",
     });
 
-    // Return the JWT token
-    return resp.status(200).json({ message: "Login successful", token });
+    // Check user role (Admin or not)
+    const [isadmin] = await db.query('SELECT role FROM users WHERE email = ?', [email]);
+    if (isadmin.length > 0 && isadmin[0].role === 'Admin') {
+      // Send token and flag to frontend, let frontend handle redirection
+      return resp.status(200).json({ message: "Login successful", token, isAdmin: true });
+    }
+
+    // Send token with response for non-admin users
+    return resp.status(200).json({ message: "Login successful", token, isAdmin: false });
   } catch (error) {
     console.error(error);
     return resp
@@ -114,6 +119,9 @@ async function signInUsers(req, resp, next) {
       .json({ error: "Server error occurred during login." });
   }
 }
+
+
+
 
 
 async function OTP(req, resp, next) {

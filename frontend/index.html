@@ -25,6 +25,7 @@
       <!-- Search Box -->
       <div class="search-box">
         <input type="text" id="search" placeholder="Search products..." />
+        <button id="search-btn">Search</button>
       </div>
     </header>
 
@@ -38,7 +39,7 @@
 
     <!-- Product Listing Section -->
     <section class="product-list">
-      <h2>Featured Products</h2>
+      <h2 id="product-title">Featured Products</h2>
       <div class="product-container" id="product-container">
         <!-- Products will be dynamically inserted here -->
       </div>
@@ -49,59 +50,21 @@
       <p>&copy; 2024 Jhutta Ho - All Rights Reserved</p>
     </footer>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-      // Example product data
-      const products = [
-        {
-          id: 1,
-          name: "Men's Running Shoes",
-          price: 49.99,
-          description: "Comfortable running shoes for men.",
-          category: "Men's Shoes",
-          image: "https://via.placeholder.com/200",
-        },
-        {
-          id: 2,
-          name: "Ladies Sandals",
-          price: 39.99,
-          description: "Stylish sandals for women.",
-          category: "Ladies Shoes",
-          image: "https://via.placeholder.com/200",
-        },
-        {
-          id: 3,
-          name: "Kids Sneakers",
-          price: 29.99,
-          description: "Durable sneakers for kids.",
-          category: "Kids Shoes",
-          image: "https://via.placeholder.com/200",
-        },
-        {
-          id: 4,
-          name: "Sports Training Shoes",
-          price: 59.99,
-          description: "Perfect shoes for sports training.",
-          category: "Sports Shoes",
-          image: "https://via.placeholder.com/200",
-        },
-      ];
-
-      // Categories list
       const categories = [
-        "Men's Shoes",
-        "Ladies Shoes",
-        "Kids Shoes",
-        "Sports Shoes",
+        "mens", // for Men's Shoes
+        "ladies", // for Ladies Shoes
+        "kids", // for Kids Shoes
+        "sports", // for Sports Shoes
       ];
 
-      // Check if user is logged in (JWT exists in localStorage)
+      // Function to check if the user is authenticated
       function isUserAuthenticated() {
         const jwt = localStorage.getItem("authToken");
-        return jwt !== null; // Returns true if JWT exists, false otherwise
+        return jwt !== null;
       }
 
-      // Initialize cart from local storage or as an empty array
+      // Initialize cart from localStorage
       let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
       // Function to add product to the cart
@@ -111,11 +74,9 @@
           return;
         }
 
-        // Check if the product is already in the cart
         const existingProduct = cart.find((item) => item.id === productId);
-
         if (existingProduct) {
-          existingProduct.quantity += 1; // Increment quantity if already in the cart
+          existingProduct.quantity += 1;
         } else {
           cart.push({
             id: productId,
@@ -125,84 +86,149 @@
           });
         }
 
-        // Save the updated cart back to local storage
         localStorage.setItem("cart", JSON.stringify(cart));
         alert(`${productName} has been added to your cart!`);
       }
 
       // Function to render products dynamically
-      function renderProducts(selectedCategory = null) {
+      function renderProducts(products, category = '') {
         const productContainer = document.getElementById("product-container");
-        productContainer.innerHTML = ""; // Clear existing products
+        const productTitle = document.getElementById("product-title");
 
-        const filteredProducts = selectedCategory
-          ? products.filter((product) => product.category === selectedCategory)
-          : products;
+        productContainer.innerHTML = "";
 
-        filteredProducts.forEach((product) => {
-          const productCard = document.createElement("div");
-          productCard.className = "product-card";
-          productCard.innerHTML = `
-            <img src="${product.image}" alt="${product.name}">
-            <h3>${product.name}</h3>
-            <p class="price">$${product.price.toFixed(2)}</p>
-            <p class="description">${product.description}</p>
-            <button class="add-to-cart" data-id="${product.id}">Add to Cart</button><br><br>
-           <button><a href="product-details.html?id=${product.id}" class="view-details">View Details</a></button>
-          `;
-          productContainer.appendChild(productCard);
-        });
+        if (products.length === 0) {
+          productContainer.innerHTML = "<p>No products found.</p>";
+        } else {
+          if (category) {
+            productTitle.textContent = `${category} Products`;
+          } else {
+            productTitle.textContent = 'Featured Products';
+          }
 
-        // Attach event listeners to "Add to Cart" buttons
-        document.querySelectorAll(".add-to-cart").forEach((button) => {
-          button.addEventListener("click", () => {
-            const productCard = button.closest(".product-card");
-            const productId = button.getAttribute("data-id");
-            const productName = productCard.querySelector("h3").textContent;
-            const productPrice = productCard
-              .querySelector(".price")
-              .textContent.replace("$", "");
+          products.forEach((product) => {
+            const productCard = document.createElement("div");
+            productCard.className = "product-card";
+            
+            // Ensure price is a valid number before calling toFixed
+            const price = parseFloat(product.product_price);
+            const formattedPrice = isNaN(price) ? 'N/A' : price.toFixed(2);
 
-            addToCart(productId, productName, parseFloat(productPrice));
+            productCard.innerHTML = `
+              <img src="${product.product_image}" alt="${product.product_Name}">
+              <h3>${product.product_Name}</h3>
+              <p class="price">$${formattedPrice}</p>
+              <p class="description">${product.product_description}</p>
+              <button class="add-to-cart" data-id="${product.Id}">Add to Cart</button><br><br>
+              <button class="view-details" data-id="${product.Id}">View Details</button>
+            `;
+            productContainer.appendChild(productCard);
           });
-        });
+
+          // Add to cart event listener
+          document.querySelectorAll(".add-to-cart").forEach((button) => {
+            button.addEventListener("click", () => {
+              const productCard = button.closest(".product-card");
+              const productId = button.getAttribute("data-id");
+              const productName = productCard.querySelector("h3").textContent;
+              const productPrice = parseFloat(
+                productCard.querySelector(".price").textContent.replace("$", "")
+              );
+
+              addToCart(productId, productName, productPrice);
+            });
+          });
+
+          // View details button functionality
+          document.querySelectorAll(".view-details").forEach((button) => {
+            button.addEventListener("click", () => {
+              const productId = button.getAttribute("data-id");
+              window.location.href = `product-details.html?id=${productId}`; // Pass productId as a URL parameter
+            });
+          });
+        }
       }
 
-      // Function to render category links
+      // Fetch products based on category from your backend API
+      function fetchCategoryProducts(category) {
+        const categoryMap = {
+          mens: "Men's Shoes",
+          ladies: "Ladies Shoes",
+          kids: "Kids Shoes",
+          sports: "Sports Shoes",
+        };
+
+        const fullCategoryName = categoryMap[category]; // Get the full category name
+
+        if (!fullCategoryName) {
+          console.error('Invalid category');
+          return;
+        }
+
+        console.log("Fetching products for category:", fullCategoryName);
+
+        fetch(`http://localhost:3000/getProducts?product_category=${encodeURIComponent(fullCategoryName)}`)
+          .then((response) => response.json())
+          .then((products) => renderProducts(products, fullCategoryName))
+          .catch((error) => {
+            console.error('Error fetching products:', error);
+            alert('Failed to load products.');
+          });
+      }
+
+      // Function to fetch products from backend API (can be used for featured products or searching)
+      function fetchProducts() {
+        fetch('http://localhost:3000/featured-products') // Fetch featured products by default
+          .then((response) => response.json())
+          .then((products) => renderProducts(products)) // Render products when data is fetched
+          .catch((error) => {
+            console.error('Error fetching products:', error);
+            alert('Failed to load products.');
+          });
+      }
+
+      // Function to perform search
+      function performSearch() {
+        const query = document.getElementById("search").value.toLowerCase();
+        if (query) {
+          fetch(`http://localhost:3000/search-products?query=${encodeURIComponent(query)}`) // Replace with your backend search API
+            .then((response) => response.json())
+            .then((products) => renderProducts(products, 'Search Results'))
+            .catch((error) => {
+              console.error('Error fetching search results:', error);
+              alert('Failed to load search results.');
+            });
+        } else {
+          fetchProducts(); // If no query, fetch featured products
+        }
+      }
+
+      // Rendering Categories
       function renderCategories() {
         const categoryList = document.getElementById("category-list");
-        categoryList.innerHTML = ""; // Clear existing categories
+        categoryList.innerHTML = "";
 
         categories.forEach((category) => {
           const li = document.createElement("li");
-          li.innerHTML = `<a href="#" data-category="${category}">${category}</a>`;
+          li.innerHTML = `<a href="#" data-category="${category}">${category.charAt(0).toUpperCase() + category.slice(1)} Shoes</a>`;
           categoryList.appendChild(li);
         });
 
-        // Add event listeners for category links
+        // Add click event listeners to each category link
         document.querySelectorAll(".categories a").forEach((link) => {
           link.addEventListener("click", (e) => {
             e.preventDefault();
-            const category = e.target.getAttribute("data-category");
-            renderProducts(category); // Filter products based on selected category
+            const selectedCategory = e.target.getAttribute("data-category");
+            fetchCategoryProducts(selectedCategory); // Fetch products for the selected category
           });
         });
       }
 
-      // Initial render of categories and products
+      document.getElementById("search-btn").addEventListener("click", performSearch);
+
+      // Initial rendering
       renderCategories();
-      renderProducts();
-
-      // Function to get cart data if the user is logged in
-      function displayCartData() {
-        const cart = JSON.parse(localStorage.getItem("cart")) || [];
-        console.log("Cart items:", cart);
-      }
-
-      // Call to display cart if user is authenticated (has JWT)
-      if (isUserAuthenticated()) {
-        displayCartData();
-      }
+      fetchProducts(); // Fetch featured products on page load
     </script>
   </body>
 </html>

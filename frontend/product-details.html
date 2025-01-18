@@ -1,40 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Product Details</title>
-    <link rel="stylesheet" href="style.css" />
     <style>
-      .product-detail-container {
-        display: flex;
-        justify-content: space-between;
-        padding: 20px;
-      }
+        /* Basic Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
 
-      .product-image {
-        width: 40%;
-      }
+        header {
+            background-color: #6a1b9a; /* Purple Color */
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
 
-      .product-info {
-        width: 55%;
-      }
+        header .logo h1 {
+            margin: 0;
+        }
 
-      .product-info h3 {
-        margin-bottom: 10px;
-      }
+        header nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0;
+        }
 
-      .buy-now-btn {
-        background-color: #4caf50;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        cursor: pointer;
-      }
+        header nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+
+        header nav ul li a {
+            color: white;
+            text-decoration: none;
+        }
+
+        footer {
+            background-color: #6a1b9a; /* Purple Color */
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        /* Product Details Section */
+        #product-details {
+            display: flex;
+            padding: 20px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #product-details img {
+            max-width: 300px;
+            height: auto;
+            margin-right: 20px;
+        }
+
+        #product-details .product-info {
+            max-width: 500px;
+        }
+
+        #product-details h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        #product-details p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+
+        /* Button Layout */
+        .button-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-container button {
+            background-color: #6a1b9a; /* Purple Color */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 48%;
+            transition: background-color 0.3s ease;
+        }
+
+        .button-container button:hover {
+            background-color: #9c4dcc; /* Lighter Purple Color */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #product-details {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            #product-details .product-info {
+                max-width: 100%;
+            }
+
+            #product-details img {
+                margin-right: 0;
+            }
+
+            .button-container {
+                flex-direction: column;
+            }
+
+            .button-container button {
+                width: 100%;
+            }
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
+
+    <!-- Header Section -->
     <header>
       <div class="logo">
         <h1>Jhutta Ho</h1>
@@ -49,71 +144,108 @@
       </nav>
     </header>
 
-    <section class="product-detail-container" id="product-detail-container">
-      <!-- Product details will be inserted here -->
+    <!-- Product Details Section -->
+    <section id="product-details">
+        <div class="product-image-container">
+            <img id="product-image" src="" alt="Product Image">
+        </div>
+        <div class="product-info">
+            <h2 id="product-name"></h2>
+            <p id="product-price"></p>
+            <p id="product-description"></p>
+            <div class="button-container">
+                <button id="add-to-cart">Add to Cart</button>
+                <button id="buy-now">Buy Now</button>
+            </div>
+        </div>
     </section>
 
+    <!-- Footer Section -->
     <footer>
-      <p>&copy; 2024 Jhutta Ho - All Rights Reserved</p>
+        <p>&copy; 2024 Jhutta Ho - All Rights Reserved</p>
     </footer>
 
     <script>
-      const products = [
-        {
-          id: 1,
-          name: "Men's Running Shoes",
-          price: 49.99,
-          description: "Comfortable running shoes for men.",
-          image: "https://via.placeholder.com/400",
-        },
-        {
-          id: 2,
-          name: "Ladies Sandals",
-          price: 39.99,
-          description: "Stylish sandals for women.",
-          image: "https://via.placeholder.com/400",
-        },
-        {
-          id: 3,
-          name: "Kids Sneakers",
-          price: 29.99,
-          description: "Durable sneakers for kids.",
-          image: "https://via.placeholder.com/400",
-        },
-        {
-          id: 4,
-          name: "Sports Training Shoes",
-          price: 59.99,
-          description: "Perfect shoes for sports training.",
-          image: "https://via.placeholder.com/400",
-        },
-      ];
+        // Get the product ID from the URL query string
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
 
-      // Get the product ID from the URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const productId = parseInt(urlParams.get('id'));
+        // Fetch product details based on the product ID
+        function fetchProductDetails() {
+            fetch(`http://localhost:3000/products?id=${productId}`) // Replace with your actual API endpoint
+                .then((response) => response.json())
+                .then((product) => {
+                    if (product) {
+                        displayProductDetails(product);
+                    } else {
+                        document.getElementById("product-details").innerHTML = "<p>Product not found.</p>";
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching product details:', error);
+                    document.getElementById("product-details").innerHTML = "<p>Failed to load product details.</p>";
+                });
+        }
 
-      // Find the product based on the ID
-      const product = products.find((p) => p.id === productId);
+        // Display product details on the page
+        function displayProductDetails(product) {
+            document.getElementById("product-name").textContent = product.name;
+            document.getElementById("product-image").src = product.image; // Ensure the image path is correct
+            document.getElementById("product-price").textContent = `$${product.price}`;
+            document.getElementById("product-description").textContent = product.description;
+        }
 
-      if (product) {
-        const productDetailContainer = document.getElementById("product-detail-container");
-        productDetailContainer.innerHTML = `
-          <div class="product-image">
-            <img src="${product.image}" alt="${product.name}" />
-          </div>
-          <div class="product-info">
-            <h3>${product.name}</h3>
-            <p>${product.description}</p>
-            <p><strong>Price: $${product.price.toFixed(2)}</strong></p>
-            <button class="buy-now-btn" onclick="buyNow(${product.id})">Buy Now</button>
-          </div>
-        `;
-      }
+        // Handle Add to Cart button
+        document.getElementById("add-to-cart").addEventListener("click", () => {
+            if (!isUserAuthenticated()) {
+                alert("You must be logged in to add items to the cart!");
+                return;
+            }
+            
+            // Add product to cart
+            addToCart(productId, document.getElementById("product-name").textContent, parseFloat(document.getElementById("product-price").textContent.replace('$', '')));
+        });
 
-      function buyNow(productId) {
-        alert(`You chose to buy the product with ID: ${productId}.`);
-      }
+        // Handle Buy Now button
+        document.getElementById("buy-now").addEventListener("click", () => {
+            if (!isUserAuthenticated()) {
+                alert("You must be logged in to make a purchase!");
+                return;
+            }
+            
+            // Redirect to payment page or handle buy logic
+            window.location.href = 'payment.html'; // Replace with your payment page
+        });
+
+        // Check if the user is authenticated
+        function isUserAuthenticated() {
+            const jwt = localStorage.getItem("authToken");
+            return jwt !== null;
+        }
+
+        // Add to cart logic
+        function addToCart(productId, productName, productPrice) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const existingProduct = cart.find((item) => item.id === productId);
+
+            if (existingProduct) {
+                existingProduct.quantity += 1;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: productName,
+                    price: productPrice,
+                    quantity: 1,
+                });
+            }
+
+            localStorage.setItem("cart", JSON.stringify(cart));
+            alert(`${productName} has been added to your cart!`);
+        }
+
+        // Fetch product details when the page loads
+        fetchProductDetails();
     </script>
-  </body>
+
+</body>
 </html>
